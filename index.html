@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flyer Maker Kajian Islami - Mobile Optimized</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600;800&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Container utama pratinjau agar pas di layar HP */
+        .preview-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: #cbd5e1;
+            border-radius: 1.5rem;
+            position: relative;
+            touch-action: manipulation;
+        }
+
+        /* Skala otomatis berdasarkan lebar container */
+        .flyer-preview {
+            width: 1080px;
+            height: 1080px;
+            transform-origin: center center;
+            flex-shrink: 0;
+            position: absolute;
+            transform: scale(calc(var(--preview-width, 300) / 1080));
+        }
+
+        .font-arabic { font-family: 'Amiri', serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        
+        #flyer-bg {
+            background-color: #0f172a;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .text-shadow-lg {
+            text-shadow: 0 4px 12px rgba(0,0,0,0.9);
+        }
+
+        .bg-option, .theme-option {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid transparent;
+        }
+        
+        .bg-option.active, .theme-option.active {
+            border-color: #6366f1;
+            transform: scale(1.05);
+        }
+
+        #view-judul, #view-subtema {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .preview-label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 20;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Menyesuaikan tinggi input agar lebih compact */
+        input, select, textarea {
+            padding: 0.75rem 1rem !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans">
+
+    <div class="max-w-7xl mx-auto p-4 md:p-6">
+        <header class="mb-4 text-center">
+            <h1 class="text-2xl font-extrabold text-indigo-900">FlyerMaker</h1>
+            <p class="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Kajian Islam</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+            
+            <!-- Preview Section -->
+            <div class="order-1 lg:order-2 lg:sticky lg:top-4">
+                <div class="preview-container shadow-2xl border-4 border-white" id="container-ref">
+                    <span class="preview-label">Mode Pratinjau</span>
+                    <div id="flyer-capture" class="flyer-preview bg-slate-900 relative text-white">
+                        
+                        <div id="flyer-bg" class="absolute inset-0 transition-all duration-700" style="background-image: url('https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1080&q=80');">
+                            <div id="flyer-overlay" class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/80"></div>
+                        </div>
+
+                        <!-- Logo Container Pojok Kanan Atas -->
+                        <div class="absolute top-12 right-12 z-20">
+                            <img id="view-logo" src="" class="max-h-24 max-w-[200px] object-contain hidden">
+                        </div>
+
+                        <div class="relative h-full flex flex-col items-center justify-between p-12 text-center z-10">
+                            
+                            <div class="w-full flex flex-col items-center gap-2">
+                                <div class="font-arabic text-3xl opacity-90 mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+                                <div id="header-border" class="px-8 py-2 border-y-1 border-indigo-400 inline-block">
+                                    <span id="header-text" class="text-xl font-bold tracking-[0.4em] text-indigo-200 uppercase">Hadirilah</p>Kajian Islam Ilmiyah</span>
+                                </div>
+                            </div>
+
+                            <div class="w-full px-6 flex flex-col items-center justify-center">
+                                <p id="accent-label" class="text-yellow-500 font-bold uppercase tracking-[0.2em] mb-4 text-xl"> TEMA :</p>
+                                <h1 id="view-judul" class="text-6xl font-montserrat font-black leading-[1.1] text-shadow-lg uppercase max-w-[900px]">JUDUL KAJIAN</h1>
+                                
+                                <div id="subtema-container" class="mt-4 hidden max-w-[800px]">
+                                    <p id="view-subtema" class="text-2xl font-medium tracking-wide text-slate-100 opacity-90"></p>
+                                </div>
+
+                                <div id="title-divider" class="w-1/4 h-1 bg-yellow-500 mx-auto mt-6 mb-8 rounded-full"></div>
+                                <div class="flex flex-col items-center">
+                                    <span id="ustadz-label" class="text-xl text-indigo-200 italic mb-2">Bersama Pemateri:</span>
+                                    <h2 id="view-ustadz" class="text-4xl font-montserrat font-bold tracking-wide">Nama Ustadz</h2>
+                                    <p id="view-gelar" class="text-2xl font-montserrat font-medium text-yellow-400 mt-1 italic hidden">Keterangan</p>
+                                </div>
+                            </div>
+
+                            <div class="w-full flex flex-col gap-6">
+                                <div id="footer-container" class="w-full bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 p-10 flex items-center justify-between">
+                                    <div class="flex-1 flex flex-col justify-center items-start gap-5 border-r border-white/20 pr-8">
+                                        <div class="flex items-center gap-5 w-full">
+                                            <div id="icon-bg-1" class="w-14 h-14 shrink-0 flex items-center justify-center bg-indigo-600/50 rounded-full text-white">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            </div>
+                                            <div class="text-left overflow-hidden">
+                                                <p id="view-tanggal-masehi" class="text-2xl font-bold leading-tight truncate">Tgl Masehi</p>
+                                                <p id="view-tanggal-hijriah" class="text-xl font-semibold text-yellow-400 leading-tight truncate">Tgl Hijriah</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-5 w-full">
+                                            <div id="icon-bg-2" class="w-14 h-14 shrink-0 flex items-center justify-center bg-indigo-600/50 rounded-full text-white">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            </div>
+                                            <div class="text-left overflow-hidden">
+                                                <p id="view-waktu" class="text-2xl font-bold leading-tight truncate">09:00 - Selesai</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex-[1.2] flex flex-col justify-center gap-5 pl-10">
+                                        <div class="flex items-center gap-5 w-full">
+                                            <div id="icon-bg-3" class="w-14 h-14 shrink-0 flex items-center justify-center bg-indigo-600/50 rounded-full text-white">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                            </div>
+                                            <div class="text-left overflow-hidden">
+                                                <p id="label-tempat" class="text-yellow-400 font-bold text-sm tracking-widest uppercase mb-1">Tempat:</p>
+                                                <p id="view-tempat" class="text-2xl font-bold leading-tight truncate">Masjid Al-Ikhlas</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-5 w-full">
+                                            <div id="icon-bg-4" class="w-14 h-14 shrink-0 flex items-center justify-center bg-indigo-600/50 rounded-full text-white">
+                                                <div id="view-icon-kategori">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                                </div>
+                                            </div>
+                                            <div class="text-left overflow-hidden">
+                                                <p id="label-peserta" class="text-yellow-400 font-bold text-sm tracking-widest uppercase mb-1">Peserta:</p>
+                                                <p id="view-kategori-teks" class="text-2xl font-bold leading-tight truncate">Terbuka Untuk Umum</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="social-footer" class="flex flex-wrap justify-center gap-6 py-4 px-10 bg-black/40 rounded-2xl border border-white/5 backdrop-blur-sm hidden">
+                                    <div id="view-fb" class="hidden items-center gap-3">
+                                        <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3l-.5 3H13v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>
+                                        <span id="txt-fb" class="text-lg font-bold"></span>
+                                    </div>
+                                    <div id="view-yt" class="hidden items-center gap-3">
+                                        <svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                        <span id="txt-yt" class="text-lg font-bold"></span>
+                                    </div>
+                                    <div id="view-ig" class="hidden items-center gap-3">
+                                        <svg class="w-6 h-6 text-pink-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.981 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                                        <span id="txt-ig" class="text-lg font-bold"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 lg:hidden">
+                    <button onclick="downloadJPG()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-3 text-base active:scale-95 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Simpan Gambar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editor Section -->
+            <div class="order-2 lg:order-1 bg-white p-4 md:p-6 rounded-2xl shadow-xl border border-slate-100">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-3 text-indigo-700 border-b pb-3">
+                    <div class="p-1.5 bg-indigo-100 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+                    </div>
+                    Sesuaikan Flyer
+                </h2>
+                
+                <div class="space-y-4">
+                    <!-- Upload Logo -->
+                    <div class="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                        <label class="block text-xs font-bold text-slate-700 mb-2">Upload Logo (Pojok Kanan Atas)</label>
+                        <div class="flex items-center gap-4">
+                            <label class="cursor-pointer bg-white border border-slate-300 hover:border-indigo-500 text-slate-600 px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+                                Pilih File
+                                <input type="file" id="logo-input" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
+                            </label>
+                            <button id="remove-logo" onclick="removeLogo()" class="text-xs font-bold text-red-500 hidden">Hapus Logo</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">Warna Tema</label>
+                        <div class="grid grid-cols-5 gap-2" id="theme-gallery"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">Latar Belakang</label>
+                        <div class="flex overflow-x-auto gap-2 pb-1 snap-x" id="bg-gallery"></div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-bold text-slate-700">Judul Tema</label>
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" id="uppercase-toggle" onchange="updateFlyer()" checked class="w-3.5 h-3.5 accent-indigo-600">
+                                <span class="text-[10px] font-bold text-slate-500 uppercase">Kapital</span>
+                            </label>
+                        </div>
+                        <textarea id="judul" oninput="updateFlyer()" placeholder="Tuliskan judul kajian..." rows="2" class="w-full rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium resize-none"></textarea>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">Sub-Tema (Opsional)</label>
+                        <input type="text" id="subtema" oninput="updateFlyer()" placeholder="Misal: Bedah buku atau penjelasan singkat..." class="w-full rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700">Nama Pemateri</label>
+                            <input type="text" id="ustadz" oninput="updateFlyer()" placeholder="Nama Ustadz" class="w-full rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700">Gelar / Doa</label>
+                            <input type="text" id="gelar" oninput="updateFlyer()" placeholder="Hafidzahullah" class="w-full rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700">Tanggal</label>
+                            <input type="date" id="tanggal" onchange="updateFlyer()" class="w-full rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700">Waktu</label>
+                            <input type="text" id="waktu" oninput="updateFlyer()" placeholder="09:00 - Selesai" class="w-full rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700">Tempat</label>
+                            <input type="text" id="tempat" oninput="updateFlyer()" placeholder="Nama Lokasi / Masjid" class="w-full rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700">Peserta</label>
+                            <select id="kategori" onchange="updateFlyer()" class="w-full rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none appearance-none text-sm">
+                                <option value="umum">Terbuka Untuk Umum</option>
+                                <option value="ikhwan">Khusus Ikhwan</option>
+                                <option value="akhwat">Khusus Akhwat</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-2">
+                        <label class="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Informasi Tambahan</label>
+                        <div class="space-y-2">
+                           <input type="text" id="fb-input" oninput="updateFlyer()" placeholder="Facebook" class="w-full rounded-lg border border-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm text-sm">
+                           <input type="text" id="yt-input" oninput="updateFlyer()" placeholder="YouTube Channel" class="w-full rounded-lg border border-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm text-sm">
+                           <input type="text" id="ig-input" oninput="updateFlyer()" placeholder="@Instagram" class="w-full rounded-lg border border-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm text-sm">
+                        </div>
+                    </div>
+
+                    <button onclick="downloadJPG()" class="hidden lg:flex w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-xl items-center justify-center gap-3 text-base transition-all hover:translate-y-[-2px] active:translate-y-0">
+                        Download Flyer
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="mt-8 mb-6 text-center text-slate-400">
+            <p class="text-[10px] font-bold uppercase tracking-widest">&copy; 2026 Samkid.id </p>
+        </footer>
+    </div>
+
+    <script>
+        const backgroundOptions = [
+            { id: 1, url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1080&q=80', label: 'Alam' },
+            { id: 2, url: 'https://images.unsplash.com/photo-1544084944-15269ec7b5a0?auto=format&fit=crop&w=1080&q=80', label: 'Gurun' },
+            { id: 3, url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1080&q=80', label: 'Danau' },
+            { id: 4, url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1080&q=80', label: 'Hutan' },
+            { id: 5, url: 'https://images.unsplash.com/photo-1542718212-9c36214041b6?auto=format&fit=crop&w=1080&q=80', label: 'Masjid' }
+        ];
+
+        const themeOptions = [
+            { id: 'indigo', name: 'Indigo Gold', accent: '#facc15', primary: '#818cf8', secondary: '#c7d2fe', iconBg: 'rgba(79, 70, 229, 0.5)' },
+            { id: 'emerald', name: 'Emerald Fresh', accent: '#fbbf24', primary: '#34d399', secondary: '#a7f3d0', iconBg: 'rgba(5, 150, 105, 0.5)' },
+            { id: 'gold-navy', name: 'Gold & Navy', accent: '#fbbf24', primary: '#fbbf24', secondary: '#fde68a', iconBg: 'rgba(251, 191, 36, 0.3)' },
+            { id: 'monochrome', name: 'Mono Silver', accent: '#e2e8f0', primary: '#ffffff', secondary: '#cbd5e1', iconBg: 'rgba(255, 255, 255, 0.2)' },
+            { id: 'rose', name: 'Elegant Rose', accent: '#fda4af', primary: '#f43f5e', secondary: '#fecdd3', iconBg: 'rgba(225, 29, 72, 0.5)' }
+        ];
+
+        let activeTheme = themeOptions[0];
+
+        const categoryIcons = {
+            umum: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>`,
+            ikhwan: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>`,
+            akhwat: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`
+        };
+
+        function resizePreview() {
+            const container = document.getElementById('container-ref');
+            const preview = document.getElementById('flyer-capture');
+            if (container && preview) {
+                const width = container.offsetWidth;
+                container.style.setProperty('--preview-width', width);
+            }
+        }
+
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const logoView = document.getElementById('view-logo');
+                    logoView.src = e.target.result;
+                    logoView.classList.remove('hidden');
+                    document.getElementById('remove-logo').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeLogo() {
+            const logoView = document.getElementById('view-logo');
+            logoView.src = "";
+            logoView.classList.add('hidden');
+            document.getElementById('logo-input').value = "";
+            document.getElementById('remove-logo').classList.add('hidden');
+        }
+
+        function initBackgroundGallery() {
+            const container = document.getElementById('bg-gallery');
+            backgroundOptions.forEach(bg => {
+                const div = document.createElement('div');
+                div.className = `bg-option relative aspect-square rounded-lg overflow-hidden bg-slate-200 snap-center shrink-0 w-16 ${bg.id === 1 ? 'active' : ''}`;
+                div.innerHTML = `<img src="${bg.url}" class="w-full h-full object-cover">`;
+                div.onclick = () => {
+                    document.querySelectorAll('.bg-option').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    document.getElementById('flyer-bg').style.backgroundImage = `url('${bg.url}')`;
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function initThemeGallery() {
+            const container = document.getElementById('theme-gallery');
+            themeOptions.forEach(theme => {
+                const div = document.createElement('div');
+                div.className = `theme-option h-10 rounded-xl flex items-center justify-center border-2 ${activeTheme.id === theme.id ? 'active' : ''}`;
+                div.style.backgroundColor = theme.primary;
+                div.innerHTML = `<div class="w-3 h-3 rounded-full" style="background-color: ${theme.accent}"></div>`;
+                div.onclick = () => {
+                    document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    activeTheme = theme;
+                    applyTheme();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function applyTheme() {
+            document.getElementById('header-border').style.borderColor = activeTheme.primary;
+            document.getElementById('header-text').style.color = activeTheme.secondary;
+            document.getElementById('accent-label').style.color = activeTheme.accent;
+            document.getElementById('title-divider').style.backgroundColor = activeTheme.accent;
+            document.getElementById('ustadz-label').style.color = activeTheme.secondary;
+            document.getElementById('view-gelar').style.color = activeTheme.accent;
+            document.getElementById('view-tanggal-hijriah').style.color = activeTheme.accent;
+            document.getElementById('label-tempat').style.color = activeTheme.accent;
+            document.getElementById('label-peserta').style.color = activeTheme.accent;
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`icon-bg-${i}`).style.backgroundColor = activeTheme.iconBg;
+            }
+        }
+
+        function getHijriDate(date) {
+            const months = ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Ula", "Jumadil Akhira", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulqadah", "Dzulhijjah"];
+            let d = date.getDate(), m = date.getMonth() + 1, y = date.getFullYear();
+            if (m < 3) { y -= 1; m += 12; }
+            let a = Math.floor(y / 100), b = 2 - a + Math.floor(a / 4);
+            let jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + b - 1524.5;
+            let l = jd - 1948440 + 10632, n = Math.floor((l - 1) / 10631);
+            l = l - 10631 * n + 354;
+            let j = (Math.floor((10985 - l) / 5316)) * (Math.floor((50 * l) / 17719)) + (Math.floor(l / 5670)) * (Math.floor((43 * l) / 15238));
+            l = l - (Math.floor((30 - j) / 15)) * (Math.floor((17719 * j) / 50)) - (Math.floor(j / 16)) * (Math.floor((15238 * j) / 43)) + 29;
+            m = Math.floor((24 * l) / 709); d = l - Math.floor((709 * m) / 24); y = 30 * n + j - 30;
+            return `${d} ${months[m - 1]} ${y} H`;
+        }
+
+        function updateFlyer() {
+            let judulValue = document.getElementById('judul').value || "JUDUL KAJIAN";
+            const isUppercase = document.getElementById('uppercase-toggle').checked;
+            const viewJudul = document.getElementById('view-judul');
+            viewJudul.innerText = judulValue;
+            viewJudul.style.textTransform = isUppercase ? 'uppercase' : 'none';
+
+            let subtemaValue = document.getElementById('subtema').value;
+            const subtemaContainer = document.getElementById('subtema-container');
+            const viewSubtema = document.getElementById('view-subtema');
+            if (subtemaValue.trim() !== "") {
+                viewSubtema.innerText = subtemaValue;
+                subtemaContainer.classList.remove('hidden');
+            } else {
+                subtemaContainer.classList.add('hidden');
+            }
+
+            document.getElementById('view-ustadz').innerText = document.getElementById('ustadz').value || "Nama Ustadz";
+            const gelar = document.getElementById('gelar').value;
+            document.getElementById('view-gelar').innerText = gelar;
+            document.getElementById('view-gelar').classList.toggle('hidden', !gelar);
+
+            const tgl = document.getElementById('tanggal').value;
+            if (tgl) {
+                const date = new Date(tgl);
+                document.getElementById('view-tanggal-masehi').innerText = date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace("Minggu", "Ahad");
+                document.getElementById('view-tanggal-hijriah').innerText = getHijriDate(date);
+            }
+            document.getElementById('view-waktu').innerText = document.getElementById('waktu').value || "09:00 - Selesai";
+            document.getElementById('view-tempat').innerText = document.getElementById('tempat').value || "Masjid Al-Ikhlas";
+
+            const kategoriValue = document.getElementById('kategori').value;
+            const kategoriText = document.getElementById('kategori').options[document.getElementById('kategori').selectedIndex].text;
+            document.getElementById('view-kategori-teks').innerText = kategoriText;
+            document.getElementById('view-icon-kategori').innerHTML = categoryIcons[kategoriValue];
+
+            const fb = document.getElementById('fb-input').value;
+            const yt = document.getElementById('yt-input').value;
+            const ig = document.getElementById('ig-input').value;
+            document.getElementById('txt-fb').innerText = fb; document.getElementById('view-fb').className = fb ? 'flex items-center gap-3' : 'hidden';
+            document.getElementById('txt-yt').innerText = yt; document.getElementById('view-yt').className = yt ? 'flex items-center gap-3' : 'hidden';
+            document.getElementById('txt-ig').innerText = ig; document.getElementById('view-ig').className = ig ? 'flex items-center gap-3' : 'hidden';
+            document.getElementById('social-footer').classList.toggle('hidden', !(fb || yt || ig));
+            applyTheme();
+        }
+
+        async function downloadJPG() {
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerText = "Tunggu Sebentar...";
+            btn.disabled = true;
+            const flyer = document.getElementById('flyer-capture');
+            const originalTransform = flyer.style.transform;
+            flyer.style.transform = 'none';
+            flyer.style.position = 'fixed'; 
+            flyer.style.top = '0'; 
+            flyer.style.left = '0';
+            flyer.style.zIndex = '-1';
+            try {
+                await new Promise(r => setTimeout(r, 600));
+                const canvas = await html2canvas(flyer, { 
+                    scale: 2, 
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: null,
+                    width: 1080,
+                    height: 1080
+                });
+                const link = document.createElement('a');
+                link.download = `Kajian_${Date.now()}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+            } catch (e) {
+                console.error("Gagal mendownload:", e);
+            } finally {
+                flyer.style.transform = originalTransform;
+                flyer.style.position = '';
+                flyer.style.zIndex = '';
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        window.onload = () => {
+            initBackgroundGallery();
+            initThemeGallery();
+            updateFlyer();
+            resizePreview();
+            window.addEventListener('resize', resizePreview);
+        };
+    </script>
+</body>
+</html>
