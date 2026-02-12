@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600;800&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* Container utama pratinjau agar pas di layar HP */
         .preview-container {
             width: 100%;
             aspect-ratio: 1 / 1;
@@ -22,7 +21,6 @@
             touch-action: manipulation;
         }
 
-        /* Skala otomatis berdasarkan lebar container */
         .flyer-preview {
             width: 1080px;
             height: 1080px;
@@ -56,7 +54,7 @@
             transform: scale(1.05);
         }
 
-        #view-judul, #view-subtema {
+        #view-judul, #view-subtema, #view-tempat {
             white-space: pre-wrap;
             word-wrap: break-word;
         }
@@ -77,7 +75,6 @@
             backdrop-filter: blur(4px);
         }
 
-        /* Menyesuaikan tinggi input agar lebih compact */
         input, select, textarea {
             padding: 0.75rem 1rem !important;
         }
@@ -103,7 +100,7 @@
                             <div id="flyer-overlay" class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/80"></div>
                         </div>
 
-                        <!-- Logo Container Pojok Kanan Atas -->
+                        <!-- Logo Container -->
                         <div class="absolute top-12 right-12 z-20">
                             <img id="view-logo" src="" class="max-h-24 max-w-[200px] object-contain hidden">
                         </div>
@@ -112,8 +109,8 @@
                             
                             <div class="w-full flex flex-col items-center gap-2">
                                 <div class="font-arabic text-3xl opacity-90 mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
-                                <div id="header-border" class="px-8 py-2 border-y-1 border-indigo-400 inline-block">
-                                    <span id="header-text" class="text-xl font-bold tracking-[0.4em] text-indigo-200 uppercase">Hadirilah</p>Kajian Islam Ilmiyah</span>
+                                <div id="header-border" class="px-8 py-2 border-y-2 border-indigo-400 inline-block">
+                                    <span id="header-text" class="text-xl font-bold tracking-[0.4em] text-indigo-200 uppercase">Hadirilah Kajian Islam Ilmiyah</span>
                                 </div>
                             </div>
 
@@ -134,35 +131,37 @@
                             </div>
 
                             <div class="w-full flex flex-col gap-6">
-                                <div id="footer-container" class="w-full bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 p-10 flex items-center justify-between">
-                                    <div class="flex-1 flex flex-col justify-center items-start gap-5 border-r border-white/20 pr-8">
+                                <div id="footer-container" class="w-full bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 p-8 flex items-stretch justify-between min-h-[220px]">
+                                    
+                                    <div class="w-1/2 flex flex-col justify-center items-start gap-6 border-r border-white/20 pr-6">
                                         <div class="flex items-center gap-5 w-full">
                                             <div id="icon-bg-1" class="w-14 h-14 shrink-0 flex items-center justify-center bg-indigo-600/50 rounded-full text-white">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                             </div>
-                                            <div class="text-left overflow-hidden">
-                                                <p id="view-tanggal-masehi" class="text-2xl font-bold leading-tight truncate">Tgl Masehi</p>
-                                                <p id="view-tanggal-hijriah" class="text-xl font-semibold text-yellow-400 leading-tight truncate">Tgl Hijriah</p>
+                                            <div class="text-left">
+                                                <p id="view-tanggal-masehi" class="text-2xl font-bold leading-tight whitespace-nowrap">Tgl Masehi</p>
+                                                <p id="view-tanggal-hijriah" class="text-xl font-semibold text-yellow-400 leading-tight whitespace-nowrap">Tgl Hijriah</p>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-5 w-full">
                                             <div id="icon-bg-2" class="w-14 h-14 shrink-0 flex items-center justify-center bg-indigo-600/50 rounded-full text-white">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                             </div>
-                                            <div class="text-left overflow-hidden">
-                                                <p id="view-waktu" class="text-2xl font-bold leading-tight truncate">09:00 - Selesai</p>
+                                            <div class="text-left">
+                                                <p id="view-waktu" class="text-2xl font-bold leading-tight">09:00 - Selesai</p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="flex-[1.2] flex flex-col justify-center gap-5 pl-10">
+                                    <div class="w-1/2 flex flex-col justify-center items-start gap-6 pl-8">
                                         <div class="flex items-center gap-5 w-full">
                                             <div id="icon-bg-3" class="w-14 h-14 shrink-0 flex items-center justify-center bg-indigo-600/50 rounded-full text-white">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                             </div>
-                                            <div class="text-left overflow-hidden">
+                                            <div class="text-left">
                                                 <p id="label-tempat" class="text-yellow-400 font-bold text-sm tracking-widest uppercase mb-1">Tempat:</p>
-                                                <p id="view-tempat" class="text-2xl font-bold leading-tight truncate">Masjid Al-Ikhlas</p>
+                                                <!-- Added pre-wrap support for multiline address -->
+                                                <p id="view-tempat" class="text-2xl font-bold leading-tight">Masjid Al-Ikhlas</p>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-5 w-full">
@@ -171,15 +170,15 @@
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                                                 </div>
                                             </div>
-                                            <div class="text-left overflow-hidden">
+                                            <div class="text-left">
                                                 <p id="label-peserta" class="text-yellow-400 font-bold text-sm tracking-widest uppercase mb-1">Peserta:</p>
-                                                <p id="view-kategori-teks" class="text-2xl font-bold leading-tight truncate">Terbuka Untuk Umum</p>
+                                                <p id="view-kategori-teks" class="text-2xl font-bold leading-tight">Terbuka Untuk Umum</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div id="social-footer" class="flex flex-wrap justify-center gap-6 py-4 px-10 bg-black/40 rounded-2xl border border-white/5 backdrop-blur-sm hidden">
+                                <div id="social-footer" class="flex flex-wrap justify-center gap-8 py-4 px-10 bg-black/40 rounded-2xl border border-white/5 backdrop-blur-sm hidden">
                                     <div id="view-fb" class="hidden items-center gap-3">
                                         <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3l-.5 3H13v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>
                                         <span id="txt-fb" class="text-lg font-bold"></span>
@@ -282,7 +281,8 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-slate-700">Tempat</label>
-                            <input type="text" id="tempat" oninput="updateFlyer()" placeholder="Nama Lokasi / Masjid" class="w-full rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                            <!-- Changed to textarea for multiline support -->
+                            <textarea id="tempat" oninput="updateFlyer()" placeholder="Nama Lokasi / Masjid" rows="2" class="w-full rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-none"></textarea>
                         </div>
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-slate-700">Peserta</label>
@@ -481,28 +481,37 @@
         async function downloadJPG() {
             const btn = event.currentTarget;
             const originalText = btn.innerHTML;
-            btn.innerText = "Tunggu Sebentar...";
+            btn.innerText = "Mempersiapkan Gambar...";
             btn.disabled = true;
+            
             const flyer = document.getElementById('flyer-capture');
             const originalTransform = flyer.style.transform;
+            
             flyer.style.transform = 'none';
             flyer.style.position = 'fixed'; 
             flyer.style.top = '0'; 
             flyer.style.left = '0';
-            flyer.style.zIndex = '-1';
+            flyer.style.zIndex = '-1000';
+            
             try {
-                await new Promise(r => setTimeout(r, 600));
+                await new Promise(r => setTimeout(r, 1000));
+                
                 const canvas = await html2canvas(flyer, { 
                     scale: 2, 
                     useCORS: true,
                     logging: false,
-                    backgroundColor: null,
+                    backgroundColor: "#000000",
                     width: 1080,
-                    height: 1080
+                    height: 1080,
+                    onclone: (clonedDoc) => {
+                        const clonedFlyer = clonedDoc.getElementById('flyer-capture');
+                        clonedFlyer.style.transform = 'none';
+                    }
                 });
+                
                 const link = document.createElement('a');
-                link.download = `Kajian_${Date.now()}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.download = `Flyer_Kajian_${Date.now()}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
                 link.click();
             } catch (e) {
                 console.error("Gagal mendownload:", e);
